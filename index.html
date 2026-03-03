@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pixel Agency – Puzzle Drop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Lateef:wght@200&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        background: #f0efea;
+      }
+
+      body {
+        overflow: hidden; /* locked during animation; unlocked by JS when P/A begin moving */
+      }
+
+      .stage {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        z-index: 9999; /* always above scrollable content */
+        background: #f0efea; /* opaque backdrop — acts as loader */
+        pointer-events: none;
+      }
+
+      #puzzle {
+        position: relative;
+      }
+
+      .tile {
+        position: absolute;
+        will-change: transform, opacity;
+      }
+
+      .tile img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: fill;
+        pointer-events: none;
+      }
+
+      /* ── Hero section ────────────────────────────────────────────────── */
+      .hero {
+        position: relative;
+        padding: 140px 10% 100px; /* top padding clears the nav bar */
+        max-width: 960px;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+        opacity: 0; /* hidden until loader animation completes */
+      }
+
+      .hero h1 {
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-size: 4.5rem;
+        font-weight: 700;
+        color: #333;
+        letter-spacing: -0.03em;
+        line-height: 0.85;
+        margin-bottom: 1.5rem;
+      }
+
+      .hero p {
+        font-family: 'Lateef', serif;
+        font-weight: 200;
+        font-size: 2.25rem;
+        color: #555;
+        letter-spacing: -0.01em;
+        line-height: 0.95;
+      }
+
+      /* ── Scrollable content below the fold ───────────────────────────── */
+      .scroll-content {
+        position: relative;
+        opacity: 0; /* hidden until loader animation completes */
+        padding: 80px 10% 120px;
+        max-width: 860px;
+        margin-left: auto;
+        margin-right: auto;
+        font-family: 'Lateef', serif;
+        font-weight: 200;
+        font-size: 18px;
+        color: #333;
+        letter-spacing: -0.01em;
+        line-height: 0.95;
+        min-height: 300vh; /* ensures content spans three viewport heights */
+      }
+
+      .scroll-content h2 {
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        letter-spacing: -0.03em;
+        line-height: 0.85;
+      }
+
+      .scroll-content p {
+        margin-bottom: 1.25rem;
+        font-size: 18px;
+      }
+
+      /* ── Site navigation ──────────────────────────────────────────────── */
+      #site-nav {
+        position: fixed;
+        top: 0;
+        right: 0;
+        height: 64px;
+        padding: 0 40px;
+        display: flex;
+        align-items: center;
+        z-index: 9999;
+        opacity: 0;
+        pointer-events: none; /* enabled by JS once logo lands */
+      }
+
+      #site-nav ul {
+        list-style: none;
+        display: flex;
+        gap: 36px;
+      }
+
+      #site-nav a {
+        text-decoration: none;
+        color: #333;
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-size: 0.8rem;
+        font-weight: 500;
+        letter-spacing: -0.03em;
+        line-height: 0.85;
+        text-transform: uppercase;
+        transition: opacity 0.2s;
+      }
+
+      #site-nav a:hover {
+        opacity: 0.5;
+      }
+
+      /* ── Logo link ────────────────────────────────────────────────────── */
+      .tile.logo-link {
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="stage">
+      <div id="puzzle"></div>
+    </div>
+
+    <!-- Navigation — hidden until logo animation completes -->
+    <nav id="site-nav">
+      <ul>
+        <li><a href="#">Services</a></li>
+        <li><a href="#">Pixel Assist</a></li>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </nav>
+
+    <!-- Hero section -->
+    <section class="hero">
+      <h1>Clear Promises + Careful Craft = Proud Outcomes</h1>
+      <p>We're Pixel Agency, a practitioner-led digital partner.</p>
+    </section>
+
+    <!-- Scrollable content below the fold — used to verify P and A stay fixed -->
+    <div class="scroll-content">
+      <h2>Lorem Ipsum</h2>
+      <p>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore
+        magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+        consequat.
+      </p>
+      <p>
+        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur
+        sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+      </p>
+      <p>
+        Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor
+        quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean
+        ultricies mi vitae est. Mauris placerat eleifend leo.
+      </p>
+      <p>
+        Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae,
+        ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis
+        tempus lacus enim ac dui.
+      </p>
+      <p>
+        Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis molestie dictum ultricies,
+        lacus nunc ultrices eros, in tristique nisi sem sed sem. Integer iaculis justo vel arcu condimentum volutpat.
+      </p>
+      <p>
+        Sed commodo posuere pede. Mauris ut est. Ut quis purus. Sed ac odio. Sed vehicula hendrerit sem. Duis non odio.
+        Morbi ut dui. Sed accumsan risus eget odio. In hac habitasse platea dictumst. Pellentesque non elit.
+      </p>
+      <p>
+        Fusce lobortis lorem at ipsum semper sagittis. Vivamus a diam vel lectus eleifend posuere. Vestibulum ante ipsum
+        primis in faucibus orci luctus et ultrices posuere cubilia curae; Proin vel ante a orci tempus eleifend ut erat.
+      </p>
+      <p>
+        Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus. Phasellus
+        ultrices nulla quis nibh. Quisque a lectus. Donec consectetuer ligula vulputate sem tristique cursus. Nam nulla
+        quam, gravida non, commodo a, sodales sit amet, nisi.
+      </p>
+
+      <h2>Dolor Sit Amet</h2>
+      <p>
+        Nullam at arcu a est sollicitudin euismod. Praesent dapibus, neque id cursus faucibus, tortor neque egestas
+        augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui ligula, fringilla a, euismod sodales,
+        sollicitudin vel, wisi.
+      </p>
+      <p>
+        Morbi auctor lorem non justo. Nam lacus libero, pretium at, lobortis vitae, ornare et, elit. Donec aliquet,
+        tortor sed accumsan bibendum, erat ligula aliquet magna, vitae ornare odio metus a mi. Morbi ac orci et nisl
+        hendrerit mollis.
+      </p>
+      <p>
+        Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Proin vel ante a orci
+        tempus eleifend ut et magna. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus luctus urna sed
+        urna ultricies ac tempor dui sagittis.
+      </p>
+      <p>
+        In condimentum facilisis porta. Sed nec diam eu diam mattis viverra. Nulla fringilla, orci ac euismod semper,
+        magna diam porttitor mauris, quis sollicitudin sapien justo in libero. Vestibulum mollis mauris enim. Morbi
+        euismod magna ac lorem rutrum elementum.
+      </p>
+      <p>
+        Donec viverra mi quis quam. In pellentesque massa placerat dui. Aenean scelerisque aliquet odio. Integer vitae
+        nibh elit. Nunc varius, turpis in cursus lobortis, eros arcu rutrum mauris, vitae viverra diam nunc ut justo.
+        Pellentesque commodo est.
+      </p>
+      <p>
+        Phasellus commodo, quam a blandit bibendum, felis nisl fringilla enim, nec cursus urna nibh at urna. Sed at
+        lorem in nunc porta tristique. Proin nec augue. Quisque aliquam tempor ante. Nunc nisi mauris, volutpat eget,
+        interdum at, imperdiet in, nunc.
+      </p>
+      <p>
+        Proin eget tortor risus. Vivamus magna. Fusce feugiat malesuada odio. Morbi nunc odio, gravida at, cursus nec,
+        luctus a, lorem. Maecenas tristique orci ac sem. Duis ultricies pharetra magna. Donec accumsan malesuada orci.
+        Donec sit amet eros.
+      </p>
+      <p>
+        Integer commodo lectus id odio. Sed nec lectus sed enim bibendum cursus. Morbi neque dolor, placerat a, ornare
+        a, sollicitudin sit amet, purus. Sed egestas felis sit amet lectus. Pellentesque habitant morbi tristique
+        senectus et netus et malesuada fames ac turpis egestas.
+      </p>
+
+      <h2>Consectetur Adipiscing</h2>
+      <p>
+        Nam pretium turpis et arcu. Duis arcu tortor, suscipit eget, imperdiet nec, imperdiet iaculis, ipsum. Sed
+        aliquam ultrices mauris. Integer ante arcu, accumsan a, consectetuer eget, posuere ut, mauris. Praesent
+        adipiscing.
+      </p>
+      <p>
+        Phasellus ullamcorper ipsum rutrum nunc. Nunc nonummy metus. Vestibulum volutpat pretium libero. Cras id dui.
+        Aenean ut eros et nisl sagittis vestibulum. Nullam nulla eros, ultricies sit amet, nonummy id, imperdiet
+        feugiat, pede.
+      </p>
+      <p>
+        Sed lectus. Praesent elementum hendrerit tortor. Sed semper lorem at felis. Vestibulum volutpat, lacus a
+        ultrices sagittis, mi neque euismod dui, eu pulvinar nunc sapien ornare nisl. Phasellus pede arcu, dapibus eu,
+        fermentum et, dapibus sed, urna.
+      </p>
+      <p>
+        Morbi interdum mollis sapien. Sed ac risus. Phasellus lacinia, magna a ullamcorper laoreet, lectus arcu pulvinar
+        risus, vitae facilisis libero dolor a purus. Sed vel lacus. Mauris nibh felis, adipiscing varius, adipiscing in,
+        lacinia vel, tellus.
+      </p>
+      <p>
+        Suspendisse ac urna. Etiam pellentesque aliquet tellus. Phasellus pharetra nulla ac diam. Quisque semper justo
+        at risus. Donec venenatis, turpis vel hendrerit interdum, dui ligula ultricies purus, sed posuere libero dui id
+        orci.
+      </p>
+      <p>
+        Nam congue, pede vitae dapibus aliquet, elit magna vulputate arcu, vel tempus metus leo non est. Etiam sit amet
+        lectus quis est congue mollis. Phasellus congue lacus eget neque. Phasellus ornare, ante vitae consectetuer
+        consequat, purus sapien ultricies dolor.
+      </p>
+      <p>
+        In dui magna, posuere eget, vestibulum et, tempor auctor, justo. In ac felis quis tortor malesuada pretium.
+        Pellentesque auctor neque. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec,
+        vulputate eget, arcu in enim justo.
+      </p>
+      <p>
+        Rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt.
+        Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu,
+        consequat vitae, eleifend ac, enim.
+      </p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script>
+      ;(function () {
+        'use strict'
+
+        // ── Grid ─────────────────────────────────────────────────────────────
+        var COLS = 6
+        var ROWS = 2
+
+        // ── Tile definitions ──────────────────────────────────────────────────
+        var TILE_DEFS = [
+          { id: 'P', src: 'Letters/P.svg', solvedPos: 0 },
+          { id: 'I', src: 'Letters/I.svg', solvedPos: 1 },
+          { id: 'X', src: 'Letters/X.svg', solvedPos: 2 },
+          { id: 'E', src: 'Letters/E.svg', solvedPos: 3 },
+          { id: 'L', src: 'Letters/L.svg', solvedPos: 4 },
+          // position 5 → EMPTY (the missing black tile)
+          { id: 'A', src: 'Letters/A.svg', solvedPos: 6 },
+          { id: 'G', src: 'Letters/G.svg', solvedPos: 7 },
+          { id: 'E2', src: 'Letters/E-red.svg', solvedPos: 8 },
+          { id: 'N', src: 'Letters/N.svg', solvedPos: 9 },
+          { id: 'C', src: 'Letters/C.svg', solvedPos: 10 },
+          { id: 'Y', src: 'Letters/Y.svg', solvedPos: 11 }
+        ]
+
+        var SOLVED_STATE = new Array(COLS * ROWS).fill(null)
+        TILE_DEFS.forEach(function (def, idx) {
+          SOLVED_STATE[def.solvedPos] = idx
+        })
+
+        // ── Sizing — matches pixel-agency.html (first page) ───────────────────
+        // width: min(95vw, 1080px), gap: clamp(3px, 0.6vw, 9px)
+        var GAP = Math.min(9, Math.max(3, Math.round(window.innerWidth * 0.006)))
+        var PUZZLE_W = Math.min(Math.round(window.innerWidth * 0.95), 1080)
+        var TILE_SIZE = Math.floor((PUZZLE_W - (COLS - 1) * GAP) / COLS)
+        var PUZZLE_H = ROWS * TILE_SIZE + (ROWS - 1) * GAP
+
+        // ── Helpers ───────────────────────────────────────────────────────────
+        function gridToPixel(pos) {
+          return {
+            x: (pos % COLS) * (TILE_SIZE + GAP),
+            y: Math.floor(pos / COLS) * (TILE_SIZE + GAP)
+          }
+        }
+
+        function getAdjacentPositions(pos) {
+          var row = Math.floor(pos / COLS),
+            col = pos % COLS,
+            adj = []
+          if (col > 0) adj.push(pos - 1)
+          if (col < COLS - 1) adj.push(pos + 1)
+          if (row > 0) adj.push(pos - COLS)
+          if (row < ROWS - 1) adj.push(pos + COLS)
+          return adj
+        }
+
+        // ── Shuffle ───────────────────────────────────────────────────────────
+        var SHUFFLE_MOVES = 10
+
+        function generateShuffle(numMoves) {
+          var state = SOLVED_STATE.slice()
+          var moves = []
+          var emptyPos = state.indexOf(null)
+          var prevEmpty = -1
+
+          for (var i = 0; i < numMoves; i++) {
+            var candidates = getAdjacentPositions(emptyPos).filter(function (p) {
+              return p !== prevEmpty
+            })
+            var tilePos = candidates[Math.floor(Math.random() * candidates.length)]
+            moves.push({ fromPos: tilePos, toPos: emptyPos })
+            state[emptyPos] = state[tilePos]
+            state[tilePos] = null
+            prevEmpty = emptyPos
+            emptyPos = tilePos
+          }
+
+          return { shuffledState: state, shuffleMoves: moves }
+        }
+
+        var shuffleResult = generateShuffle(SHUFFLE_MOVES)
+        var shuffledState = shuffleResult.shuffledState
+        var shuffleMoves = shuffleResult.shuffleMoves
+
+        var solvingMoves = shuffleMoves
+          .slice()
+          .reverse()
+          .map(function (m) {
+            return { fromPos: m.toPos, toPos: m.fromPos }
+          })
+
+        // ── Build DOM ─────────────────────────────────────────────────────────
+        var puzzleEl = document.getElementById('puzzle')
+        puzzleEl.style.width = PUZZLE_W + 'px'
+        puzzleEl.style.height = PUZZLE_H + 'px'
+
+        var tileEls = TILE_DEFS.map(function (def) {
+          var div = document.createElement('div')
+          div.className = 'tile'
+          div.id = 'tile-' + def.id
+          div.style.width = TILE_SIZE + 'px'
+          div.style.height = TILE_SIZE + 'px'
+          var img = document.createElement('img')
+          img.src = def.src
+          img.alt = def.id
+          div.appendChild(img)
+          puzzleEl.appendChild(div)
+          return div
+        })
+
+        // ── Drop targets — row 2 first, then row 1 ────────────────────────────
+        // Split tiles by which ROW of the shuffled grid they occupy,
+        // sort each group left-to-right by column, then concatenate
+        // bottom-row group first so AGENCY (row 2) drops before PIXEL (row 1).
+        var bottomTargets = []
+        var topTargets = []
+
+        for (var pos = 0; pos < COLS * ROWS; pos++) {
+          var tileIdx = shuffledState[pos]
+          if (tileIdx === null) continue // skip the empty slot
+
+          var p = gridToPixel(pos)
+          var target = { el: tileEls[tileIdx], finalX: p.x, finalY: p.y, col: pos % COLS }
+
+          if (Math.floor(pos / COLS) === 1) {
+            bottomTargets.push(target) // row 2 (index 1)
+          } else {
+            topTargets.push(target) // row 1 (index 0)
+          }
+        }
+
+        // Sort each group by column so the stagger sweeps left-to-right
+        function byCol(a, b) {
+          return a.col - b.col
+        }
+        bottomTargets.sort(byCol)
+        topTargets.sort(byCol)
+
+        // Row 2 drops first, row 1 follows
+        var dropTargets = bottomTargets.concat(topTargets)
+
+        // ── Animation constants ───────────────────────────────────────────────
+        var DROP_FROM = -(window.innerHeight + 300)
+        var DROP_DUR = 1.37 // 1.05 × 1.3 — slowed 30 %
+        var DROP_STAGGER = 0.09
+        var DROP_DELAY = 0.2
+
+        // ── Set initial state: 50% opacity, each tile above viewport ─────────
+        gsap.set(tileEls, { opacity: 0.5 })
+
+        dropTargets.forEach(function (dt) {
+          gsap.set(dt.el, { x: dt.finalX, y: DROP_FROM, force3D: true })
+        })
+
+        // ── Phase 1 : Drop ────────────────────────────────────────────────────
+        var dropTl = gsap.timeline({ delay: DROP_DELAY })
+
+        dropTargets.forEach(function (dt, i) {
+          dropTl.to(
+            dt.el,
+            {
+              y: dt.finalY,
+              duration: DROP_DUR,
+              ease: 'bounce.out'
+            },
+            i * DROP_STAGGER
+          )
+        })
+
+        // Landing squish
+        dropTargets.forEach(function (dt, i) {
+          var fireAt = DROP_DELAY + i * DROP_STAGGER + 0.64 * DROP_DUR
+          gsap.fromTo(
+            dt.el,
+            { scaleY: 1, scaleX: 1 },
+            {
+              scaleY: 0.82,
+              scaleX: 1.1,
+              duration: 0.085, // 0.065 × 1.3 — slowed 30 %
+              yoyo: true,
+              repeat: 1,
+              ease: 'power2.inOut',
+              delay: fireAt,
+              transformOrigin: 'bottom center'
+            }
+          )
+        })
+
+        // ── Opacity: each tile fades 50% → 100% on its own landing moment ────
+        // Fired at the same time as the squish (first bounce impact ≈ 64% through
+        // DROP_DUR), lasting 0.5 s so each letter independently brightens as it hits.
+        dropTargets.forEach(function (dt, i) {
+          var landTime = DROP_DELAY + i * DROP_STAGGER + 0.64 * DROP_DUR
+          gsap.to(dt.el, {
+            opacity: 1,
+            duration: 0.5,
+            delay: landTime,
+            ease: 'power2.out'
+          })
+        })
+
+        var absLastLands = DROP_DELAY + (dropTargets.length - 1) * DROP_STAGGER + DROP_DUR
+        var SOLVE_PAUSE = 0.55 // gap between last landing and first solve move
+        var SOLVE_START = absLastLands + SOLVE_PAUSE
+
+        // ── Phase 2 : Solve (total = 1.3 s — slowed 30 %) ────────────────────
+        var MOVE_DUR = 1.3 / SHUFFLE_MOVES // 1.3 / 10 = 0.13 s per move
+
+        var domGrid = new Array(COLS * ROWS).fill(null)
+        shuffledState.forEach(function (idx, pos) {
+          if (idx !== null) domGrid[pos] = tileEls[idx]
+        })
+
+        var solveTl = gsap.timeline({ delay: SOLVE_START })
+
+        solvingMoves.forEach(function (move) {
+          var el = domGrid[move.fromPos]
+          var p = gridToPixel(move.toPos)
+          solveTl.to(el, { x: p.x, y: p.y, duration: MOVE_DUR, ease: 'power2.inOut' })
+          domGrid[move.toPos] = el
+          domGrid[move.fromPos] = null
+        })
+
+        // Completion pulse
+        solveTl.to(puzzleEl, {
+          scale: 1.025,
+          duration: 0.325, // 0.25 × 1.3 — slowed 30 %
+          ease: 'power2.out',
+          yoyo: true,
+          repeat: 1,
+          delay: 0.2,
+          transformOrigin: 'center center'
+        })
+
+        // ── Phase 3 : P and A fly to top-left corner at half size ─────────────
+        // The puzzle container is centred by flexbox. To land a tile at a fixed
+        // viewport position we offset its GSAP x/y by the puzzle's edge distance
+        // from the viewport origin.
+        var puzzleLeft = (window.innerWidth - PUZZLE_W) / 2
+        var puzzleTop = (window.innerHeight - PUZZLE_H) / 2
+
+        var CORNER_PAD = 20 // px from the viewport edges
+        var HALF_TILE = TILE_SIZE * 0.5 // rendered size at scale 0.5
+        var PA_GAP = 4 // gap between P and A when stacked
+
+        // Target GSAP x/y values (tiles use transformOrigin 'top left' so these
+        // correspond directly to the tile's top-left corner in viewport space)
+        var cornerX = CORNER_PAD - puzzleLeft
+        var cornerY_P = CORNER_PAD - puzzleTop
+        var cornerY_A = CORNER_PAD + HALF_TILE + PA_GAP - puzzleTop
+
+        var tileP = document.getElementById('tile-P')
+        var tileA = document.getElementById('tile-A')
+
+        // Bring P and A above sibling tiles during flight
+        gsap.set([tileP, tileA], { zIndex: 100 })
+
+        // All tiles that are NOT P or A fade out just before P/A begin moving
+        var remainingTiles = tileEls.filter(function (el) {
+          return el !== tileP && el !== tileA
+        })
+
+        // Fade starts 1.0 s after the completion pulse ends
+        solveTl.to(
+          remainingTiles,
+          {
+            opacity: 0,
+            duration: 0.72, // 0.55 × 1.3 — slowed 30 %
+            ease: 'power2.inOut'
+          },
+          '>+1.0'
+        )
+
+        // P and A begin moving 0.1 s into the fade (i.e. 0.35 s after pulse ends)
+        // onStart unlocks page scroll the instant this tween fires
+        solveTl.to(
+          tileP,
+          {
+            x: cornerX,
+            y: cornerY_P,
+            scale: 0.5,
+            transformOrigin: 'top left',
+            duration: 0.91, // 0.7 × 1.3 — slowed 30 %
+            ease: 'power3.inOut',
+            onStart: function () {
+              document.body.style.overflow = 'auto'
+            }
+          },
+          '<+0.1'
+        ) // 0.1 s after the fade tween started
+
+        solveTl.to(
+          tileA,
+          {
+            x: cornerX,
+            y: cornerY_A,
+            scale: 0.5,
+            transformOrigin: 'top left',
+            duration: 0.91, // 0.7 × 1.3 — slowed 30 %
+            ease: 'power3.inOut',
+            onComplete: function () {
+              // Make logo tiles act as a link to this page
+              ;[tileP, tileA].forEach(function (el) {
+                el.style.pointerEvents = 'auto'
+                el.classList.add('logo-link')
+                el.addEventListener('click', function () {
+                  window.location.href = window.location.href
+                })
+              })
+
+              // Reveal the navigation menu
+              var nav = document.getElementById('site-nav')
+              nav.style.pointerEvents = 'auto'
+              gsap.to(nav, { opacity: 1, duration: 0.5, ease: 'power2.out' })
+
+              // Fade out the loader stage background
+              var stageEl = document.querySelector('.stage')
+              gsap.to(stageEl, {
+                backgroundColor: 'rgba(240,239,234,0)',
+                duration: 0.6,
+                ease: 'power2.out',
+                onComplete: function () {
+                  stageEl.style.background = 'none'
+                }
+              })
+
+              // Fade in the hero and scroll content
+              var heroEl = document.querySelector('.hero')
+              var scrollEl = document.querySelector('.scroll-content')
+              gsap.to(heroEl, { opacity: 1, duration: 0.8, ease: 'power2.out' })
+              gsap.to(scrollEl, { opacity: 1, duration: 0.8, delay: 0.15, ease: 'power2.out' })
+            }
+          },
+          '<'
+        ) // same start time as P
+      })()
+    </script>
+  </body>
+</html>

@@ -62,7 +62,7 @@
       .hero {
         position: relative;
         padding: 140px 10% 100px; /* top padding clears the nav bar */
-        max-width: 960px;
+        max-width: 1920px;
         margin-left: auto;
         margin-right: auto;
         text-align: center;
@@ -77,6 +77,17 @@
         letter-spacing: -0.03em;
         line-height: 0.85;
         margin-bottom: 1.5rem;
+      }
+
+      .hero h1 span {
+        display: inline-block;
+        vertical-align: middle;
+      }
+
+      .hero h1 span img {
+        display: block;
+        height: 0.55em;
+        width: auto;
       }
 
       .hero p {
@@ -194,48 +205,24 @@
 
     <!-- Hero section -->
     <section class="hero">
-      <h1>Clear Promises + Careful Craft = Proud Outcomes</h1>
+      <h1>
+        Clear Promises <span id="plus"><img src="Letters/plus.svg" alt="+" /></span> Careful Craft
+        <span id="equals"><img src="Letters/equals.svg" alt="=" /></span> Proud Outcomes
+        <span id="vector"><img src="Letters/vector.svg" alt="→" /></span>
+      </h1>
       <p>We're Pixel Agency, a practitioner-led digital partner.</p>
     </section>
 
     <!-- Scrollable content below the fold — used to verify P and A stay fixed -->
     <div class="scroll-content">
-      <h2>Lorem Ipsum</h2>
+      <h2>Testing Animations & Assets</h2>
       <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore
-        magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-        consequat.
+        This page is intended for testing the puzzle drop animation and related assets in a live environment. Not meant
+        to be the final design, test purposes only!
       </p>
       <p>
-        Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur
-        sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-      </p>
-      <p>
-        Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor
-        quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean
-        ultricies mi vitae est. Mauris placerat eleifend leo.
-      </p>
-      <p>
-        Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae,
-        ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis
-        tempus lacus enim ac dui.
-      </p>
-      <p>
-        Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis molestie dictum ultricies,
-        lacus nunc ultrices eros, in tristique nisi sem sed sem. Integer iaculis justo vel arcu condimentum volutpat.
-      </p>
-      <p>
-        Sed commodo posuere pede. Mauris ut est. Ut quis purus. Sed ac odio. Sed vehicula hendrerit sem. Duis non odio.
-        Morbi ut dui. Sed accumsan risus eget odio. In hac habitasse platea dictumst. Pellentesque non elit.
-      </p>
-      <p>
-        Fusce lobortis lorem at ipsum semper sagittis. Vivamus a diam vel lectus eleifend posuere. Vestibulum ante ipsum
-        primis in faucibus orci luctus et ultrices posuere cubilia curae; Proin vel ante a orci tempus eleifend ut erat.
-      </p>
-      <p>
-        Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus. Phasellus
-        ultrices nulla quis nibh. Quisque a lectus. Donec consectetuer ligula vulputate sem tristique cursus. Nam nulla
-        quam, gravida non, commodo a, sodales sit amet, nisi.
+        See below for flow field experiment, which should run smoothly without impacting the puzzle animation
+        performance.
       </p>
 
       <div class="flow-field">
@@ -570,7 +557,7 @@
 
         var CORNER_PAD = 20 // px from the viewport edges
         var HALF_TILE = TILE_SIZE * 0.5 // rendered size at scale 0.5
-        var PA_GAP = 4 // gap between P and A when stacked
+        var PA_GAP = 6 // gap between P and A when stacked
 
         // Target GSAP x/y values (tiles use transformOrigin 'top left' so these
         // correspond directly to the tile's top-left corner in viewport space)

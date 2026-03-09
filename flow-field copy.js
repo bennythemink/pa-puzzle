@@ -110,16 +110,14 @@ function simplex2(x, y) {
 // ── CANVAS SETUP ────────────────────────────────────────────
 const canvas = document.getElementById('flow')
 const ctx = canvas.getContext('2d')
-const container = canvas.parentElement
 let W, H
 
 // Per-point offset arrays for smooth mouse attraction
 let cols, rows, offsetsX, offsetsY, heroSmoothed
 
 function resize() {
-  const rect = container.getBoundingClientRect()
-  W = canvas.width = rect.width
-  H = canvas.height = rect.height
+  W = canvas.width = window.innerWidth
+  H = canvas.height = window.innerHeight
 
   // Rebuild offset arrays
   cols = Math.ceil(W / CONFIG.GRID_SPACING)
@@ -132,18 +130,13 @@ function resize() {
 window.addEventListener('resize', resize)
 resize()
 
-// ── MOUSE TRACKING (relative to container) ────────────────────────
+// ── MOUSE TRACKING ─────────────────────────────────────────
 let mx = -9999,
   my = -9999
 
-function updateMouse(clientX, clientY) {
-  const rect = container.getBoundingClientRect()
-  mx = clientX - rect.left
-  my = clientY - rect.top
-}
-
 window.addEventListener('mousemove', (e) => {
-  updateMouse(e.clientX, e.clientY)
+  mx = e.clientX
+  my = e.clientY
 })
 window.addEventListener('mouseleave', () => {
   mx = -9999
@@ -153,7 +146,8 @@ window.addEventListener(
   'touchmove',
   (e) => {
     const t = e.touches[0]
-    updateMouse(t.clientX, t.clientY)
+    mx = t.clientX
+    my = t.clientY
   },
   { passive: true }
 )
@@ -216,7 +210,7 @@ function draw(now) {
       let heroTarget = 0 // target influence this frame (0–1)
       if (dist < MOUSE_RADIUS && dist > 0) {
         const falloff = 1 - dist / MOUSE_RADIUS
-        const pull = falloff * falloff * MOUSE_PULL // quadratic falloff
+        const pull = falloff * falloff * MOUSE_PULL // quadratic falloff for position
         const sign = MOUSE_MODE === 'repel' || isHero ? -1 : 1
         tx = sign * (dx / dist) * pull
         ty = sign * (dy / dist) * pull
